@@ -15,6 +15,7 @@ using ProjectSchool_API.Data;
 
 namespace ProjectSchool_API {
     public class Startup {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
         public Startup (IConfiguration configuration) {
             Configuration = configuration;
         }
@@ -26,7 +27,15 @@ namespace ProjectSchool_API {
             services.AddDbContext<DataContext> (
                 x => x.UseSqlite (Configuration.GetConnectionString ("DefaultConnection"))
             );
-            services.AddControllers ();
+            services.AddCors (options => {
+                options.AddPolicy (name: MyAllowSpecificOrigins,
+                    builder => {
+                        builder.AllowAnyOrigin ().AllowAnyMethod ().AllowAnyHeader ();
+                    });
+            });
+            services.AddControllers ().AddNewtonsoftJson (options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            services.AddScoped<IRepository, Repository> ();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,12 +51,21 @@ namespace ProjectSchool_API {
             // app.UseHttpsRedirection();
 
             app.UseRouting ();
-
+            app.UseCors (MyAllowSpecificOrigins);
             app.UseAuthorization ();
 
             app.UseEndpoints (endpoints => {
                 endpoints.MapControllers ();
             });
+
+            using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory> ().CreateScope ()) {
+                scope.ServiceProvider.GetService<DataContext> ().Database.Migrate ();
+            }
+        }
+        public void ApplyMigrations (DataContext context) {
+            if (context.Database.GetPendingMigrations ().Any ()) {
+                context.Database.Migrate ();
+            }
         }
     }
 }

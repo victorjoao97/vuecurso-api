@@ -6,14 +6,9 @@ namespace ProjectSchool_API.Models {
 
         [Required]
         public string Nome { get; set; }
-
-        [Required]
         public string Sobrenome { get; set; }
-
-        [Required]
         public string DataNasc { get; set; }
         public int ProfessorId { get; set; }
-
         public Professor Professor { get; set; }
     }
 }

@@ -22,7 +22,6 @@ namespace ProjectSchool_API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("DataNasc")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Nome")
@@ -33,7 +32,6 @@ namespace ProjectSchool_API.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Sobrenome")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
